@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Posts</title>
+</head>
+<body>
+    <h1>All Posts</h1>
+    {% for post in posts %}
+    <div style="border: 1 black solid;" >
+        <h4>
+            <a href="{% url 'posts_detail' post.id %}">{{post.id}}. {{post.title}}</a>
+        </h4>
+    </div>
+    {% endfor %}
+
+    <div>
+        <button>
+            <a href="{% url 'post_create' %}">Create New Post</a>
+        </button>
+    </div>
+
+
+</body>
+</html>

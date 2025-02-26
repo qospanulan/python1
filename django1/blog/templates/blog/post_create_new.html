@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Post Create</title>
+</head>
+<body>
+    <div>
+        <h1>Create a New Post</h1>
+
+        <form action="{% url 'post_create' %}" method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Create Post</button>
+        </form>
+
+    </div>
+</body>
+</html>

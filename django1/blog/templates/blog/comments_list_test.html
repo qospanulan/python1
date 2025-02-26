@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Comments List</title>
+</head>
+<body>
+    <h1>All Comments</h1>
+    {% for comment in comments %}
+    <div>
+        <h4>
+            {{comment.id}}. {{comment.text}}
+        </h4>
+    </div>
+    {% endfor %}
+</body>
+</html>

@@ -1,0 +1,55 @@
+[
+    {
+      "update_id": 733088959,
+      "message": {
+        "message_id": 14,
+        "from": {
+          "id": 532503542,
+          "is_bot": false,
+          "first_name": "Valeriya",
+          "last_name": "Ayukayeva",
+          "username": "Valeriya_AyukAyeva",
+          "language_code": "ru"
+        },
+        "chat": {
+          "id": 532503542,
+          "first_name": "Valeriya",
+          "last_name": "Ayukayeva",
+          "username": "Valeriya_AyukAyeva",
+          "type": "private"
+        },
+        "date": 1739600094,
+        "text": "/start",
+        "entities": [
+          {
+            "offset": 0,
+            "length": 6,
+            "type": "bot_command"
+          }
+        ]
+      }
+    },
+    {
+      "update_id": 733088960,
+      "message": {
+        "message_id": 15,
+        "from": {
+          "id": 532503542,
+          "is_bot": false,
+          "first_name": "Valeriya",
+          "last_name": "Ayukayeva",
+          "username": "Valeriya_AyukAyeva",
+          "language_code": "ru"
+        },
+        "chat": {
+          "id": 532503542,
+          "first_name": "Valeriya",
+          "last_name": "Ayukayeva",
+          "username": "Valeriya_AyukAyeva",
+          "type": "private"
+        },
+        "date": 1739600097,
+        "text": "123"
+      }
+    }
+  ]
