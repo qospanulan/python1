@@ -17,6 +17,7 @@ class Post(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     author = models.ForeignKey(User, on_delete=models.CASCADE)
+    likes_count = models.PositiveIntegerField(default=0)
 
     likes = models.ManyToManyField(User, related_name="liked_posts")
 

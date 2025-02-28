@@ -133,6 +133,7 @@ class PostCreateView(CreateView):
     model = Post
     form_class = PostCreateForm
     success_url = reverse_lazy('posts_list')
+    template_name = 'blog/post_create_new.html'
 
 
 class PostCreateViewOld(View):
