@@ -1,40 +1,79 @@
 from xmlrpc.client import ResponseError
 
 from django.db.models import Q
+from rest_framework import generics
+from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.serializers import ModelSerializer
 from rest_framework.views import APIView
 
 from blog.models import Post
-from blog.serializers import PostCreateSerializer
+from blog.serializers import PostCreateSerializer, PostListGenericSerializer, PostCreateGenericSerializer
+
+
+class PostListGenericAPIView(generics.ListAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostListGenericSerializer
+
+
+class PostCreateGenericAPIView(generics.CreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostCreateGenericSerializer
 
 
 class PostListAPIView(APIView):
 
+    class OutputSerializer(ModelSerializer):
+        class Meta:
+            model = Post
+            fields = (
+                "id", "title", "content",
+                "created_at", "updated_at",
+                "likes_count", "author_id"
+            )
+
     def get(self, request):
 
         posts = Post.objects.all()
-
-
-        posts_data = [ {
-            "title": post.title,
-            "content": post.content
-        } for post in posts ]
+        posts_data = self.OutputSerializer(posts, many=True).data
 
         return Response(posts_data)
 
-
 class PostCreateAPIView(APIView):
+
+    class InputSerializer(ModelSerializer):
+        class Meta:
+            model = Post
+            fields = ('title', 'content', 'likes_count')
+
+    class OutputSerializer(ModelSerializer):
+        class Meta:
+            model = Post
+            fields = "__all__"
 
     def post(self, request):
 
-        new_post = PostCreateSerializer(data=request.data)
+        new_post = self.InputSerializer(data=request.data)
 
         if new_post.is_valid(raise_exception=True):
             new_post.validated_data['author_id'] = 3
-            new_post.save()
+            post = new_post.save()
 
-            return Response(new_post.data)
+            post_data = self.OutputSerializer(post).data
+            return Response(post_data)
 
+class PostDetailAPIView(APIView):
+    class OutputSerializer(ModelSerializer):
+        class Meta:
+            model = Post
+            fields = "__all__"
+
+    def get(self, request: Request, post_id: int) -> Response:
+
+        post = Post.objects.get(pk=post_id)
+        post_data = self.OutputSerializer(post).data
+
+        return Response(post_data)
 
 
 class TestAPIView(APIView):
