@@ -2,6 +2,7 @@ from xmlrpc.client import ResponseError
 
 from django.db.models import Q
 from rest_framework import generics
+from rest_framework.generics import get_object_or_404
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
@@ -15,10 +16,42 @@ class PostListGenericAPIView(generics.ListAPIView):
     queryset = Post.objects.all()
     serializer_class = PostListGenericSerializer
 
+    def get_queryset(self):
+
+        queryset = self.queryset.filter(title__icontains="ser")
+        return queryset
+
 
 class PostCreateGenericAPIView(generics.CreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostCreateGenericSerializer
+
+
+class PostListCreateGenericAPIView(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostCreateGenericSerializer
+
+
+class PostDetailGenericAPIView(generics.RetrieveAPIView):
+    queryset = Post.objects.all()
+
+    def get_serializer_class(self):
+        return PostListGenericSerializer
+
+    def get_object(self):
+
+        print("Custom Get Object method called.")
+        print(f"URL Path Params: {self.kwargs}")
+
+        queryset = self.get_queryset()
+
+        obj = queryset.get(
+            id=self.kwargs.get('post_id'),
+            title__icontains=self.kwargs.get('title')
+        )
+
+        return obj
+
 
 
 class PostListAPIView(APIView):
@@ -68,7 +101,7 @@ class PostDetailAPIView(APIView):
             model = Post
             fields = "__all__"
 
-    def get(self, request: Request, post_id: int) -> Response:
+    def get(self, request: Request, post_id) -> Response:
 
         post = Post.objects.get(pk=post_id)
         post_data = self.OutputSerializer(post).data
