@@ -1,3 +1,5 @@
+from random import choices
+
 from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.hashers import make_password
 from django.http import HttpResponse
@@ -5,6 +7,8 @@ from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from authorization.constants import ROLE_ADMIN, ROLE_USER, ROLE_MODERATOR
 
 
 class HealthApiView(APIView):
@@ -40,9 +44,9 @@ class LoginApiView(APIView):
 
             if user:
                 login(request, user)
-
-            print("user:", user.username)
-
+                print("user:", user.username)
+            else:
+                return Response({"message": "Invalid credentials!"}, status=401)
 
         return Response({"message": "Login successful!"})
 
@@ -62,11 +66,15 @@ class RegisterApiView(APIView):
             model = get_user_model()
             fields = ['username', 'password']
 
-    class OutputSerializer(serializers.ModelSerializer):
-        class Meta:
-            model = get_user_model()
-            # fields = ['username']
-            fields = '__all__'
+    class OutputSerializer(serializers.Serializer):
+        ROLE_CHOICES = [ROLE_ADMIN, ROLE_USER, ROLE_MODERATOR]
+
+        id = serializers.IntegerField()
+        username = serializers.CharField(max_length=255)
+        first_name = serializers.CharField(allow_blank=True, allow_null=True)
+        last_name = serializers.CharField(allow_blank=True, allow_null=True)
+        role = serializers.ChoiceField(choices=ROLE_CHOICES)
+        created_at = serializers.DateTimeField()
 
     def post(self, request, *args, **kwargs):
 
@@ -81,3 +89,22 @@ class RegisterApiView(APIView):
             user = serializer.save()
 
         return Response(self.OutputSerializer(user).data)
+
+
+class MeApiView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    class OutputSerializer(serializers.Serializer):
+        ROLE_CHOICES = [ROLE_ADMIN, ROLE_USER, ROLE_MODERATOR]
+
+        id = serializers.IntegerField()
+        username = serializers.CharField(max_length=255)
+        first_name = serializers.CharField(allow_blank=True, allow_null=True)
+        last_name = serializers.CharField(allow_blank=True, allow_null=True)
+        role = serializers.ChoiceField(choices=ROLE_CHOICES)
+        created_at = serializers.DateTimeField()
+
+    def get(self, request, *args, **kwargs):
+        return Response(self.OutputSerializer(request.user).data)
+
+

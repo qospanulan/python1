@@ -3,6 +3,7 @@ from xmlrpc.client import ResponseError
 from django.db.models import Q
 from rest_framework import generics
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
@@ -56,6 +57,8 @@ class PostDetailGenericAPIView(generics.RetrieveAPIView):
 
 class PostListAPIView(APIView):
 
+    permission_classes = (AllowAny,)
+
     class OutputSerializer(ModelSerializer):
         class Meta:
             model = Post
@@ -74,6 +77,8 @@ class PostListAPIView(APIView):
 
 class PostCreateAPIView(APIView):
 
+    permission_classes = (IsAuthenticated,)
+
     class InputSerializer(ModelSerializer):
         class Meta:
             model = Post
@@ -89,7 +94,7 @@ class PostCreateAPIView(APIView):
         new_post = self.InputSerializer(data=request.data)
 
         if new_post.is_valid(raise_exception=True):
-            new_post.validated_data['author_id'] = 3
+            new_post.validated_data['author_id'] = request.user.id
             post = new_post.save()
 
             post_data = self.OutputSerializer(post).data
