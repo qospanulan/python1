@@ -1,5 +1,3 @@
-from xmlrpc.client import ResponseError
-
 from django.db.models import Q
 from rest_framework import generics
 from rest_framework.generics import get_object_or_404
