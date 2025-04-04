@@ -1,4 +1,5 @@
 from django.db.models import QuerySet
+from django.http import QueryDict
 from rest_framework import exceptions
 
 from blog.models import Post
@@ -6,8 +7,16 @@ from blog.models import Post
 
 class PostService:
     @staticmethod
-    def get_all_posts() -> QuerySet[Post]:
-        return Post.objects.all()
+    def get_all_posts(request_params: QueryDict) -> QuerySet[Post]:
+
+        posts = Post.objects.all()
+
+        if 'author_id' in request_params.keys():
+            posts = posts.filter(author_id=request_params.get('author_id'))
+        if 'tags' in request_params.keys():
+            posts = posts.filter(tags__name__in=request_params.getlist('tags'))
+
+        return posts
 
     @staticmethod
     def create_post( *, author_id: int, data: dict) -> Post:

@@ -25,6 +25,8 @@ class HealthApiView(APIView):
 
 class LoginApiView(APIView):
 
+    permission_classes = (AllowAny,)
+
     class InputSerializer(serializers.Serializer):
         username = serializers.CharField(max_length=150)
         password = serializers.CharField(max_length=128)
@@ -52,7 +54,7 @@ class LoginApiView(APIView):
 
 
 class LogoutApiView(APIView):
-    permission_classes = (IsAuthenticated,)
+
     def post(self, request, *args, **kwargs):
         logout(request)
 
@@ -60,6 +62,8 @@ class LogoutApiView(APIView):
 
 
 class RegisterApiView(APIView):
+
+    permission_classes = (AllowAny,)
 
     class InputSerializer(serializers.ModelSerializer):
         class Meta:
@@ -92,7 +96,6 @@ class RegisterApiView(APIView):
 
 
 class MeApiView(APIView):
-    permission_classes = (IsAuthenticated,)
 
     class OutputSerializer(serializers.Serializer):
         ROLE_CHOICES = [ROLE_ADMIN, ROLE_USER, ROLE_MODERATOR]

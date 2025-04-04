@@ -1,3 +1,4 @@
+from django.http import QueryDict
 from rest_framework import status, serializers, exceptions
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
@@ -6,6 +7,12 @@ from rest_framework.views import APIView
 
 from blog.services.posts import PostService
 
+# Filter  ?author_id=123
+# Search  ?search=test
+
+# Ordering  ?order=-created_at
+
+# Pagination ?page=1
 
 class PostListAPIView(APIView):
 
@@ -21,10 +28,12 @@ class PostListAPIView(APIView):
 
         author_id = serializers.IntegerField()
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request: Request, *args, **kwargs):
+
+        request_params: QueryDict = request.GET
 
         post_service = PostService()
-        posts = post_service.get_all_posts()
+        posts = post_service.get_all_posts(request_params=request_params)
 
         return Response(
             data=self.OutputSerializer(posts, many=True).data,
