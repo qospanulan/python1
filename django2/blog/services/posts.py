@@ -2,6 +2,7 @@ from django.db.models import QuerySet
 from django.http import QueryDict
 from rest_framework import exceptions
 
+from blog.filters import PostFilter
 from blog.models import Post
 
 
@@ -11,10 +12,13 @@ class PostService:
 
         posts = Post.objects.all()
 
-        if 'author_id' in request_params.keys():
-            posts = posts.filter(author_id=request_params.get('author_id'))
-        if 'tags' in request_params.keys():
-            posts = posts.filter(tags__name__in=request_params.getlist('tags'))
+        if request_params:
+            posts = PostFilter(request_params, posts).qs  # query set
+
+        # if 'author_id' in request_params.keys():
+        #     posts = posts.filter(author_id__exact=request_params.get('author_id'))
+        # if 'tags' in request_params.keys():
+        #     posts = posts.filter(tags__name__in=request_params.getlist('tags'))
 
         return posts
 

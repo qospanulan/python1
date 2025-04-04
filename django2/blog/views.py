@@ -1,5 +1,6 @@
 from django.http import QueryDict
 from rest_framework import status, serializers, exceptions
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
