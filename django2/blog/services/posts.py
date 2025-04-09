@@ -1,4 +1,4 @@
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Q
 from django.http import QueryDict
 from rest_framework import exceptions
 
@@ -13,12 +13,18 @@ class PostService:
         posts = Post.objects.all()
 
         if request_params:
-            posts = PostFilter(request_params, posts).qs  # query set
+            posts = PostFilter(request_params, posts).qs
 
-        # if 'author_id' in request_params.keys():
-        #     posts = posts.filter(author_id__exact=request_params.get('author_id'))
-        # if 'tags' in request_params.keys():
-        #     posts = posts.filter(tags__name__in=request_params.getlist('tags'))
+        search_text = request_params.get('search', None)
+        if search_text:
+            posts = posts.filter(
+                Q(title__icontains=search_text) |
+                Q(content__icontains=search_text)
+            )
+
+        ordering = request_params.get('ordering', '-created_at')
+        if ordering:
+            posts = posts.order_by(ordering)
 
         return posts
 
