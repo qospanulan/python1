@@ -10,7 +10,7 @@ class PostService:
     @staticmethod
     def get_all_posts(request_params: QueryDict) -> QuerySet[Post]:
 
-        posts = Post.objects.all()
+        posts = Post.objects.select_related('author')
 
         if request_params:
             posts = PostFilter(request_params, posts).qs
