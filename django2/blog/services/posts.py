@@ -94,3 +94,9 @@ class PostService:
         post.save()
 
         return post
+
+    @staticmethod
+    def get_post_by_id_with_comments(*, post_id: int) -> Post:
+
+        post = Post.objects.prefetch_related('comments', 'comments__author').filter(id=post_id).first()
+        return post

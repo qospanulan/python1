@@ -166,3 +166,49 @@ class PostUpdateAPIView(APIView):
             data=self.OutputSerializer(post).data,
             status=status.HTTP_201_CREATED
         )
+
+
+class PostCommentsListAPIView(APIView):
+
+    class OutputSerializer(serializers.Serializer):
+        id = serializers.IntegerField()
+        title = serializers.CharField(max_length=200)
+        content = serializers.CharField()
+
+        comments = inline_serializer(
+            name="CommentsInlineSerializer",
+            fields={
+                "text": serializers.CharField(),
+                "author": inline_serializer(
+                    name="CommentsAuthorInlineSerializer",
+                    fields={
+                        "id": serializers.IntegerField(),
+                        "username": serializers.CharField()
+                    }
+                )
+            },
+            many=True
+        )
+
+    def get(self, request, post_id: int):
+
+        post_service = PostService()
+
+        comments = post_service.get_post_by_id_with_comments(
+            post_id=post_id
+        )
+
+        return Response(
+            data=self.OutputSerializer(comments).data,
+            status=status.HTTP_200_OK
+        )
+
+
+
+
+
+
+
+
+
+
