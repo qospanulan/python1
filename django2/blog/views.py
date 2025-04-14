@@ -103,17 +103,66 @@ class PostDetailAPIView(APIView):
 
         post_service = PostService()
 
-        try:
-            post = post_service.get_post_by_id(post_id=post_id)
-        except exceptions.NotFound:
-            return Response(
-                data={
-                    "detail": f"Post by ID {post_id} not found"
-                },
-                status=status.HTTP_404_NOT_FOUND
-            )
+        post = post_service.get_post_by_id(post_id=post_id)
 
         return Response(
             data=self.OutputSerializer(post).data,
             status=status.HTTP_200_OK
+        )
+
+
+class PostDeleteAPIView(APIView):
+
+    def delete(self, request, post_id: int, *args, **kwargs):
+
+        post_service = PostService()
+
+        post_service.delete_post_by_id(
+            post_id=post_id,
+            author_id=request.user.id
+        )
+
+        return Response(
+            data={
+                "detail": f"Post by ID {post_id} deleted!"
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+class PostUpdateAPIView(APIView):
+
+    # update - PUT -> {title, content, likes_count}
+    # partial_update - PATCH -> {content}
+
+    class InputSerializer(serializers.Serializer):
+        title = serializers.CharField(max_length=200, required=False)
+        content = serializers.CharField(required=False)
+        likes_count = serializers.IntegerField(required=False)
+
+    class OutputSerializer(serializers.Serializer):
+        id = serializers.IntegerField()
+        title = serializers.CharField(max_length=200)
+        content = serializers.CharField()
+        created_at = serializers.DateTimeField()
+        updated_at = serializers.DateTimeField()
+        likes_count = serializers.IntegerField()
+
+        author_id = serializers.IntegerField()
+
+    def patch(self, request, post_id: int):
+
+        data = self.InputSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+
+        post_service = PostService()
+        post = post_service.update_post_by_id(
+            author_id=request.user.id,
+            data=data.validated_data,
+            post_id=post_id
+        )
+
+        return Response(
+            data=self.OutputSerializer(post).data,
+            status=status.HTTP_201_CREATED
         )
