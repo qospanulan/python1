@@ -7,6 +7,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from blog.services.comments import CommentService
 from blog.services.posts import PostService
 from common.utils import inline_serializer
 
@@ -84,6 +85,7 @@ class PostCreateAPIView(APIView):
             data=self.OutputSerializer(post).data,
             status=status.HTTP_201_CREATED
         )
+
 
 class PostDetailAPIView(APIView):
 
@@ -204,11 +206,32 @@ class PostCommentsListAPIView(APIView):
         )
 
 
+class PostCommentsCreateAPIView(APIView):
 
+    class InputSerializer(serializers.Serializer):
+        text = serializers.CharField()
 
+    class OutputSerializer(serializers.Serializer):
+        text = serializers.CharField()
 
+    def post(self, request, post_id: int):
 
+        serializer = self.InputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
+        comment_service = CommentService()
 
+        comment = comment_service.create_comment(
+            author_id=request.user.id,
+            post_id=post_id,
+            text=serializer.validated_data.get("text")
+        )
 
+        return Response(self.OutputSerializer(comment).data)
 
+"""
+1. Admin Panel (Custom)
+2. Swagger ( drf-spectacular )
+3. Docker, Docker-Compose
+4. (celery, rabbitmq, redis)? linter?
+"""
