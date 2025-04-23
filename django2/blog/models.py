@@ -10,21 +10,41 @@ class Tag(models.Model):
 
 class Post(models.Model):
 
-    title = models.CharField(max_length=200)
+    title = models.CharField(
+        help_text="Title of the post",
+        max_length=200
+    )
     content = models.TextField()
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    likes_count = models.PositiveIntegerField(default=0)
+    likes_count = models.PositiveIntegerField(
+        default=0,
+        blank=True,
+        verbose_name="Count of Likes",
+        help_text="Auto Increment when someone like the post"
+    )
 
-    likes = models.ManyToManyField(User, related_name="liked_posts")
+    likes = models.ManyToManyField(
+        User,
+        related_name="liked_posts",
+        blank=True
+    )
 
-    tags = models.ManyToManyField(Tag, related_name="posts")
+    tags = models.ManyToManyField(
+        Tag,
+        related_name="posts",
+        blank=True
+    )
 
     def __str__(self):
-        return f"{self.title} ({self.pk})"  # primary key
+        return f"{self.title}"
+
+    class Meta:
+        verbose_name = "Post"
+        verbose_name_plural = "Posts"
 
 
 class Comment(models.Model):
