@@ -3,10 +3,12 @@ from random import choices
 from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.hashers import make_password
 from django.http import HttpResponse
-from rest_framework import serializers
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from rest_framework import serializers, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
 
 from authorization.constants import ROLE_ADMIN, ROLE_USER, ROLE_MODERATOR
 
@@ -30,8 +32,21 @@ class LoginApiView(APIView):
     class InputSerializer(serializers.Serializer):
         username = serializers.CharField(max_length=150)
         password = serializers.CharField(max_length=128)
+        test = serializers.CharField(max_length=128)
 
+        class Meta:
+            ref_name = "LoginInputSerializer"
 
+    class OutputSerializer(serializers.Serializer):
+        message = serializers.CharField()
+
+        class Meta:
+            ref_name = "LoginOutputSerializer"
+
+    @extend_schema(
+        request=InputSerializer,
+        responses={200: OutputSerializer},
+    )
     def post(self, request, *args, **kwargs):
         serializer = self.InputSerializer(data=request.data)
 
@@ -69,6 +84,7 @@ class RegisterApiView(APIView):
         class Meta:
             model = get_user_model()
             fields = ['username', 'password']
+            ref_name = "RegisterInputSerializer"
 
     class OutputSerializer(serializers.Serializer):
         ROLE_CHOICES = [ROLE_ADMIN, ROLE_USER, ROLE_MODERATOR]
@@ -80,6 +96,19 @@ class RegisterApiView(APIView):
         role = serializers.ChoiceField(choices=ROLE_CHOICES)
         created_at = serializers.DateTimeField()
 
+        class Meta:
+            ref_name = "RegisterOutputSerializer"
+
+
+    @extend_schema(
+        description="Register new users.",
+        request=InputSerializer,
+        responses={
+            201: OutputSerializer,
+            404: {"message": "User Not Found"}
+        },
+        tags=['auth']
+    )
     def post(self, request, *args, **kwargs):
 
         serializer = self.InputSerializer(data=request.data)
@@ -92,7 +121,10 @@ class RegisterApiView(APIView):
             serializer.validated_data["password"] = hashed_password
             user = serializer.save()
 
-        return Response(self.OutputSerializer(user).data)
+        return Response(
+            self.OutputSerializer(user).data,
+            status=status.HTTP_201_CREATED
+        )
 
 
 class MeApiView(APIView):
