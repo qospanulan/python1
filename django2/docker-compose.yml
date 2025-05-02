@@ -24,8 +24,16 @@ services:
     ports:
       - "5435:5432"
 
-#  redis:
-#    -
+  rabbitmq:
+    image: rabbitmq:3.13.7-management
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbitmq
+      - RABBITMQ_DEFAULT_PASS=rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+
 
 volumes:
   postgres_data:

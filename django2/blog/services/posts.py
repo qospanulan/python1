@@ -5,6 +5,8 @@ from rest_framework import exceptions
 
 from blog.filters import PostFilter
 from blog.models import Post
+from blog.tasks import telegram_send_message_task
+from common.telegram_client import get_telegram_client
 
 
 class PostService:
@@ -26,6 +28,18 @@ class PostService:
         ordering = request_params.get('ordering', '-created_at')
         if ordering:
             posts = posts.order_by(ordering)
+
+        print("== in PostService 1 =============================")
+
+        telegram_send_message_task.delay(
+            message="User getting list of posts!"
+        )
+
+        # get_telegram_client().send_message(
+        #     message="User getting list of posts!"
+        # )
+
+        print("== in PostService 2 =============================")
 
         return posts
 
