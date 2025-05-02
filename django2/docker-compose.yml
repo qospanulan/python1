@@ -1,0 +1,31 @@
+
+services:
+  web:
+    build: .
+    container_name: django2_python1
+    restart: always
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+
+  db:
+    image: postgres:16-alpine
+    container_name: django2_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: "django2"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "qwerty.123"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+
+#  redis:
+#    -
+
+volumes:
+  postgres_data:
